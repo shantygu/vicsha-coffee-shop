@@ -1,0 +1,105 @@
+---
+title: "☕ Coffee Vicscha: Análisis de Consumo y Estrategias de Rentabilidad"
+author: "Victoria Díaz y Shantal Gutiérrez"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output:
+  html_document:
+    theme: united
+    toc: true
+    toc_float: true
+    number_sections: true
+    highlight: espresso
+    df_print: paged
+    css: "cafe_style.css"
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+```{r librerys, echo=FALSE}
+library(ggplot2)
+library(dplyr)
+library(readxl)
+library(lubridate)
+library(scales)
+
+```
+
+
+
+
+El éxito operativo y comercial de una cadena de cafeterías como 'VICSHA'  se encuentra en la capacidad de comprender y anticipar ciertos aspectos o  patrones de consumo de nuestros clientes. Comprendiendo que cada una de las transacciones registradas en sus múltiples sedes es una valiosa pieza de información que, al ser analizada, permite tomar decisiones estratégicas de alto impacto para la franquicia. Este análisis se sumerge en los datos de ventas de vicsha para entender qué impulsa el consumo, cuándo ocurre y cómo optimizarlo.
+
+##  Planteamiento del problema
+
+El éxito operativo y comercial de una cadena de cafeterías como 'VICSHA'  se encuentra en la capacidad de comprender y anticipar ciertos aspectos o  patrones de consumo de nuestros clientes. Comprendiendo que cada una de las transacciones registradas en sus múltiples sedes es una valiosa pieza de información que, al ser analizada, permite tomar decisiones estratégicas de alto impacto para la franquicia. Este análisis se sumerge en los datos de ventas de vicsha para entender qué impulsa el consumo, cuándo ocurre y cómo optimizarlo.
+
+Este informe esta enfocado en realizar un Análisis Exploratorio de Datos del conjunto de datos de ventas de 'VICSHA'. Nuestro objetivo principal es convertir los datos brutos de transacciones en información práctica y útil para la toma de decisiones y asi poder optimizar la oferta de productos, gestionar el inventario y mejorar la rentabilidad en cada punto de venta.
+
+Nos haremos preguntas sencillas para determinar puntos claves para el desarrollo y mejora de la compañía preguntadonos, ¿cómo puede una cafetería identificar sus productos estrella, sus horarios más rentables y sus oportunidades de mejora? para asi saber que  patrones de consumo revelan los datos y cómo pueden traducirse en decisiones estratégicas?
+
+## 🎯 Objetivos del estudio
+
+### ✅ Objetivo general
+
+Analizar el comportamiento de consumo en la franquicia *VICSHA* a partir de datos reales de ventas, con el fin de identificar patrones de rentabilidad, segmentación temporal y oportunidades estratégicas para mejorar la eficiencia operativa y comercial.
+
+### 📌 Objetivos específicos
+
+- Identificar los productos con mayor impacto en los ingresos totales.
+- Analizar la variación del consumo según categoría de producto.
+- Detectar franjas horarias y días clave que concentran el flujo de ventas.
+- Construir visualizaciones limpias y narrativas técnicas que faciliten la interpretación de los hallazgos.
+- Proponer estrategias basadas en evidencia para optimizar la oferta, reforzar la operación y mejorar la experiencia del cliente.
+
+## 📚 Marco Teórico
+
+Este estudio esta basado en la estadística descriptiva, con el objetivo de identificar patrones transaccionales que permitan tomar decisiones estratégicas en la franquicia VICSHA.
+
+Para ello empleamos :
+
+• 	Medidas de tendencia central :  media, mediana, moda para caracterizar el ticket promedio.
+
+• 	Medidas de dispersión : desviación estándar, rango, cuartiles y desviación respecto a la mediana para evaluar la variabilidad en los ingresos.
+
+• 	Segmentación temporal: agrupación por mes y por turno horario para detectar ciclos de consumo.
+
+• 	Agrupamiento por categoría y ubicación: para comparar desempeño entre sucursales y tipos de producto.
+
+## 🧪 Marco Metodológico
+
+### Enfoque y Tipo de Investigación
+
+El estudio tiene un enfoque cuantitativo descriptivo-exploratorio, el cual orientamos a identificar patrones de consumo para asi buscar y  generar conocimiento accionable a partir de datos reales.
+
+### Fuente de Datos
+
+Los datos provienen del archivo  "Coffee Shop Sales.xlsx" , que contiene registros de transacciones realizadas en distintas sucursales de VICSHA. Las variables incluyen:  Identificadores como variables temporales, variables de consumo y Variables derivadas
+
+### Procesamiento de Datos
+
+Para hacer mas comprensible el analisis de datos aplicamos las siguientes transformaciones para mejorar la legibilidad del analisis: 
+
+• Renombramiento de variables con nombres semánticos : usamos  rename()  para dar nombres claros a las variables (- transaction_id  →  id_transaccion, etc.).
+ 
+ Variables derivadas:
+ 
+- total_ingresos: producto entre cantidad y precio unitario.
+
+- mes_abreviado: extraído de la fecha (%b) y convertido a mayúsculas.
+
+- hora: extraída de la hora de transacción.
+
+- turno: clasificado con case_when() según la hora (mañana, tarde/noche, noche).
+
+• Conversión de formatos: transformamos transaction_time a tipo datetime con ymd_hms().
+
+Este procesamiento se hizo para poder segmentar los datos por mes, turno, sucursal y categoría de producto, facilitando el análisis.
+
+### Limpieza de Datos
+
+Lo primero que hicimos fue verificar los valores nulos por variable usando colSums() y colMeans() para contar y calcular el porcentaje de nulos por variable y generamos un gráfico con ggplot2 para visualizar qué variables tienen nulos (rojo) y cuáles están completas (verde).
+  
+Luego verificamos los valores extremos revisando con summary() los rangos de precios y cantidades, y asi detectamos si había precios o cantidades menores o iguales a cero.
+
+Y por ultimo hicimos la validación estructural donde confirmamos que las variables estén correctamente tipadas (chr, num, POSIXct) y documentamos los cambios en una tabla con kableExtra, indicando qué variables se modificaron y por qué
