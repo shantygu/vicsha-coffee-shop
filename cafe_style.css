@@ -1,0 +1,44 @@
+/* Fondo general */
+body {
+  background-color: #f5f0e6;
+  color: #3e3e3e;
+  font-family: 'Georgia', serif;
+}
+
+/* Títulos */
+h1, h2, h3 {
+  color: #4b2e2e;
+  border-bottom: 1px solid #c2a87d;
+  padding-bottom: 5px;
+}
+
+/* Enlaces */
+a {
+  color: #800000;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* Citas y bloques */
+blockquote {
+  background-color: #e8d8c3;
+  border-left: 5px solid #c2a87d;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+/* Tablas */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th, td {
+  border: 1px solid #c2a87d;
+  padding: 8px;
+}
+th {
+  background-color: #e8d8c3;
+  color: #4b2e2e;
+}+

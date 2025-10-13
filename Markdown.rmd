@@ -1,6 +1,6 @@
 ---
 title: "☕ Coffee Vicscha: Análisis de Consumo y Estrategias de Rentabilidad"
-author: "Victoria Díaz y Shantal Gutiérrez"
+author: "Victoria Díaz y Schantal Gutiérrez"
 date: "`r format(Sys.Date(), '%d de %B de %Y')`"
 output:
   html_document:
@@ -98,8 +98,83 @@ Este procesamiento se hizo para poder segmentar los datos por mes, turno, sucurs
 
 ### Limpieza de Datos
 
-Lo primero que hicimos fue verificar los valores nulos por variable usando colSums() y colMeans() para contar y calcular el porcentaje de nulos por variable y generamos un gráfico con ggplot2 para visualizar qué variables tienen nulos (rojo) y cuáles están completas (verde).
+Lo primero que se realizo fue verificar los valores nulos por variable usando colSums() y colMeans() para contar y calcular el porcentaje de nulos por variable y generamos un gráfico con ggplot2 para visualizar qué variables tienen nulos (rojo) y cuáles están completas (verde).
   
 Luego verificamos los valores extremos revisando con summary() los rangos de precios y cantidades, y asi detectamos si había precios o cantidades menores o iguales a cero.
 
-Y por ultimo hicimos la validación estructural donde confirmamos que las variables estén correctamente tipadas (chr, num, POSIXct) y documentamos los cambios en una tabla con kableExtra, indicando qué variables se modificaron y por qué
+Y por ultimo hicimos la validación estructural donde confirmamos que las variables estén correctamente tipadas (chr, num, POSIXct) y documentamos los cambios en una tabla con kableExtra, indicando qué variables que se modificaron y por qué.
+
+
+###  Análisis Estadístico
+
+El análisis estadístico se llevó a cabo de manera integral, estructurando los cálculos por Sucursal (donde se analizaron el total de transacciones, ingresos y medidas de dispersión), por Categoría de producto (enfocándose en el conteo, ingresos y estadísticos descriptivos), por Mes (examinando el comportamiento mensual y el coeficiente de variación) y por Turno horario (mediante un análisis detallado por franja de consumo). Además, para una evaluación más granular, se aplicó este mismo esquema analítico de forma individual a cada tienda específica: Astoria, Lower Manhattan y Hell’s Kitchen.
+
+## 📈 Resultados y Análisis
+
+El análisis lo representaremos en cuatro niveles: por sucursal, por categoría de producto, por mes y por turno horario. Empleamos medidas estadísticas descriptivas y visualizaciones limpias para identificar patrones de consumo y oportunidades estratégicas.
+
+### 🟫 Análisis por Sucursal
+
+
+Este análisis de distribución de ingresos por sucursal la realizamoscon el propósito de identificar los patrones de consumo específicos de cada ubicación y detectar oportunidades estratégicas de crecimiento para la cadena Vícsha. La necesidad de este estudio surgió de la premisa de que cada sucursal opera en un contexto geográfico y demográfico diferente, lo que probablemente genera comportamientos de compra distintivos entre sus clientes, y asi determinamos que estas diferencias nos permite desarrollar estrategias comercializadas que maximicen el potencial de cada localización, optimicen la asignación de recursos y mejoren la rentabilidad general del negocio.
+
+
+Se opto por un enfoque metodológico que emplea gráficos de violín y boxplots de manera conjunta ya que esta elección de visualización proporciona una visión completa de la distribución de los datos.
+
+
+Los gráficos de violín ilustran la densidad de las transacciones, lo que nos permite identificar los rangos de precio donde se concentra el mayor volumen de ventas. Por su parte, los boxplots superpuestos ofrecen métricas estadísticas esenciales: la mediana, los cuartiles y los valores atípicos y asi al combinar ambas herramientas, podemos ir más allá del simple valor típico de una transacción por sucursal. Logramos comprender tanto la variabilidad como la forma completa de la distribución de ingresos.
+
+---
+```{r analiis previo , echo=FALSE}
+data_coffe <- read_excel("C:/Users/schan/Downloads/Coffee Shop Sales.xlsx")
+
+vicsha_basededatos <- data_coffe %>%
+  rename(
+    id_transaccion = transaction_id,
+    fecha_de_transaccion = transaction_date,
+    hora_de_transaccion = transaction_time,
+    cantidad_vendida = transaction_qty,
+    id_tienda = store_id,
+    ubicacion_tienda = store_location,
+    id_producto = product_id,
+    precio_unitario = unit_price,
+    categoria_producto = product_category,
+    tipo_de_producto = product_type,
+    detalles_del_producto = product_detail
+  ) %>%
+  mutate(
+    total_ingresos = cantidad_vendida * precio_unitario
+  )
+```
+
+```{r grafico_1, echo=FALSE}
+
+ggplot(vicsha_basededatos, aes(x = ubicacion_tienda, y = total_ingresos)) +
+  geom_violin(fill = "#69b3a2", alpha = 0.7, trim = TRUE) +
+  geom_boxplot(width = 0.2, alpha = 0.8, fill = "white", outlier.size = 1) +
+  coord_cartesian(ylim = c(0, quantile(vicsha_basededatos$total_ingresos, 0.95))) + 
+  labs(
+    title = "Distribución de Ingresos por Sucursal",
+    x = "Sucursal",
+    y = "Total de Ingresos por Transacción"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+---
+
+
+#### RESULTADOS DETALLADOS POR SUCURSAL
+
+ASTORIA - Clientes Consistentes
+
+La distribución muestra ventas concentradas en montos medios-bajos, con una mediana alrededor de $50-60. La forma del violín es estrecha y alta, indicando que la mayoría de las transacciones caen dentro de un rango similar. Hay poca variabilidad en los montos, lo que sugiere que los clientes tienen hábitos de compra regulares y predecibles. Los valores atípicos son mínimos, confirmando la consistencia en el comportamiento del cliente. Esta sucursal se caracteriza por transacciones estables pero con poco potencial para ventas de alto valor.
+
+HELL'S KITCHEN - Equilibrio Diversificado
+
+Presenta una distribución más amplia y balanceada, con mediana alrededor de $70-80. El violín tiene forma simétrica, mostrando una mezcla saludable de transacciones pequeñas, medianas y algunas grandes. La variabilidad moderada indica que atiende a diferentes tipos de clientes, posiblemente combinando residentes locales con visitantes. Hay algunos valores atípicos en ambos extremos, pero nada extremo. Esta ubicación muestra el mejor balance entre volumen y valor por transacción.
+
+LOWER MANHATTAN - Oportunidad Premium
+
+La distribución es la más amplia de las tres, con mediana alrededor de $80-90 pero con una densidad que se extiende hacia valores significativamente más altos. La forma del violín sugiere posiblemente dos grupos de clientes: uno de transacciones rápidas y otro de compras más sustanciales. La alta variabilidad refleja la naturaleza diversa de esta zona financiera, donde coexisten trabajadores que buscan conveniencia con ejecutivos que realizan compras corporativas. Los valores atípicos hacia el extremo superior representan oportunidades significativas para ventas de mayor valor.
