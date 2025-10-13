@@ -178,3 +178,66 @@ Presenta una distribución más amplia y balanceada, con mediana alrededor de $7
 LOWER MANHATTAN - Oportunidad Premium
 
 La distribución es la más amplia de las tres, con mediana alrededor de $80-90 pero con una densidad que se extiende hacia valores significativamente más altos. La forma del violín sugiere posiblemente dos grupos de clientes: uno de transacciones rápidas y otro de compras más sustanciales. La alta variabilidad refleja la naturaleza diversa de esta zona financiera, donde coexisten trabajadores que buscan conveniencia con ejecutivos que realizan compras corporativas. Los valores atípicos hacia el extremo superior representan oportunidades significativas para ventas de mayor valor.
+
+
+### 🟫 Análisis por categoria de producto 
+
+Este análisis de categorías de producto se realizó como complemento estratégico al análisis previo por sucursal, con el objetivo fundamental de descubrir los patrones de consumo específicos por tipo de producto y cómo estos interactúan con las diferentes ubicaciones geográficas.
+
+Mientras el análisis por sucursal nos mostró dónde se generan los ingresos, este análisis por categoría nos revelará qué productos están impulsando ese desempeño y por qué existen diferencias en la aceptación de cada categoría según la ubicación.
+
+Seleccionamos el mapa de calor como herramienta visual principal porque permite identificar de manera inmediata:
+
+- Sinergias naturales entre tipos de productos y ubicaciones específicas
+
+- Oportunidades de crecimiento en categorías subutilizadas
+
+- Patrones geográficos en las preferencias de consumo
+
+- Estrategias de surtido personalizadas por sucursal
+
+---
+
+```{r grafico_categorias_Mapa de Calor, echo=FALSE}
+
+vicsha_basededatos %>%
+  group_by(ubicacion_tienda, categoria_producto) %>%
+  summarise(ingresos_totales = sum(total_ingresos)) %>%
+  ggplot(aes(x = ubicacion_tienda, y = categoria_producto, fill = ingresos_totales)) +
+  geom_tile(color = "white", size = 0.8, alpha = 0.9) +
+  geom_text(aes(label = scales::dollar(ingresos_totales, scale = 1e-3, suffix = "K")), 
+            color = "white", size = 3.2, fontface = "bold") +
+  scale_fill_gradientn(
+    colors = c("#2c3e50", "#3498db", "#1abc9c", "#f1c40f", "#e74c3c"),
+    
+    name = "Ingresos Totales",
+    labels = scales::dollar_format(scale = 1e-3, suffix = "K")
+  ) +
+  labs(
+    title = "☕ ANÁLISIS ESTRATÉGICO: Ingresos por Sucursal y Categoría",
+    subtitle = "Mapa de Calor - Visualización de Oportunidades",
+    x = "SUCURSAL",
+    y = "CATEGORÍA DE PRODUCTO"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 11, face = "bold"),
+    axis.text.y = element_text(size = 10, face = "bold"),
+    plot.title = element_text(size = 14, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 11, hjust = 0.5),
+    legend.position = "right",
+    panel.grid = element_blank()
+  )
+```
+
+---
+
+El análisis de las categorías de producto revela patrones muy claros en el comportamiento de los clientes según su ubicación geográfica. El café se mantiene como el producto indiscutiblemente principal en las tres sucursales, generando ingresos extraordinariamente consistentes que oscilan entre los 89 y 91 mil dólares en cada ubicación. Esta uniformidad demuestra que sin importar la zona, los clientes acuden a Vícsha principalmente por su café, confirmando que esta es la columna vertebral del negocio y el producto que define la experiencia del cliente.
+
+La panadería emerge como el complemento perfecto al café, mostrando un desempeño sólido en todas las ubicaciones con ingresos entre 26 y 28 mil dólares. Lower Manhattan lidera ligeramente esta categoría, sugiriendo que los clientes de zonas más comerciales tienen mayor tendencia a complementar su bebida con un producto de panadería. Lo interesante es que esta categoría mantiene una performance estable, indicando que se ha consolidado como el acompañamiento natural del café en la mente del consumidor.
+
+Las diferencias más significativas aparecen en categorías especializadas como los granos de café y los productos de marca. Hell's Kitchen domina abrumadoramente la venta de granos de café con 18.6 mil dólares, casi el doble que las otras sucursales. Esto revela que esta ubicación atrae a un tipo de cliente más conocedor, interesado en preparar café en casa, mientras que las otras sucursales tienen clientes más orientados al consumo inmediato. Por otro lado, los productos de marca muestran una brecha dramática: Lower Manhattan genera 6.2 mil dólares mientras Hell's Kitchen apenas alcanza 1.9 mil dólares, indicando que la disposición a pagar por productos premium está directamente vinculada al poder adquisitivo de la zona.
+
+El chocolate para beber se ha convertido en la especialidad de Astoria, donde genera 26.3 mil dólares, significativamente más que en las otras ubicaciones. Esto sugiere que esta categoría ha logrado un posicionamiento cultural específico en esa comunidad, posiblemente asociado con tradiciones locales o preferencias estacionales. Mientras tanto, los sabores especializados muestran una progresión geográfica clara que va aumentando desde Astoria hasta Lower Manhattan, indicando que los gustos más sofisticados se concentran en áreas más urbanizadas y comerciales.
+
+Estos hallazgos pintan un panorama claro: cada sucursal ha desarrollado un perfil de cliente distinto con preferencias específicas. Lower Manhattan atrae clientes orientados al premium y la experiencia gourmet, Hell's Kitchen atrae conocedores del café que valoran la autenticidad, y Astoria mantiene una base de clientes leales con gustos más tradicionales. Esta comprensión permite diseñar estrategias de surtido y marketing altamente personalizadas que maximicen el potencial de cada ubicación.
