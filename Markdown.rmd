@@ -92,7 +92,7 @@ Para hacer mas comprensible el analisis de datos aplicamos las siguientes transf
 
 - turno: clasificado con case_when() según la hora (mañana, tarde/noche, noche).
 
-• Conversión de formatos: transformamos transaction_time a tipo datetime con ymd_hms().
+- Conversión de formatos: transformamos transaction_time a tipo datetime con ymd_hms().
 
 Este procesamiento se hizo para poder segmentar los datos por mes, turno, sucursal y categoría de producto, facilitando el análisis.
 
@@ -111,12 +111,12 @@ El análisis estadístico se llevó a cabo de manera integral, estructurando los
 
 ## 📈 Resultados y Análisis
 
-El análisis lo representaremos en cuatro niveles: por sucursal, por categoría de producto, por mes y por turno horario. Empleamos medidas estadísticas descriptivas y visualizaciones limpias para identificar patrones de consumo y oportunidades estratégicas.
+El análisis lo representaremos en cuatro niveles:  por sucursal, por categoría de producto, por mes y por turno horario. Empleamos medidas estadísticas descriptivas y visualizaciones limpias para identificar patrones de consumo y oportunidades estratégicas.
 
 ### 🟫 Análisis por Sucursal
 
 
-Este análisis de distribución de ingresos por sucursal la realizamoscon el propósito de identificar los patrones de consumo específicos de cada ubicación y detectar oportunidades estratégicas de crecimiento para la cadena Vícsha. La necesidad de este estudio surgió de la premisa de que cada sucursal opera en un contexto geográfico y demográfico diferente, lo que probablemente genera comportamientos de compra distintivos entre sus clientes, y asi determinamos que estas diferencias nos permite desarrollar estrategias comercializadas que maximicen el potencial de cada localización, optimicen la asignación de recursos y mejoren la rentabilidad general del negocio.
+Este análisis de distribución de ingresos por sucursal la realizamos con el propósito de identificar los patrones de consumo específicos de cada ubicación y detectar oportunidades estratégicas de crecimiento para la cadena Vícsha. La necesidad de este estudio surgió de la premisa de que cada sucursal opera en un contexto geográfico y demográfico diferente, lo que probablemente genera comportamientos de compra distintivos entre sus clientes, y asi determinamos que estas diferencias nos permite desarrollar estrategias comercializadas que maximicen el potencial de cada localización, optimicen la asignación de recursos y mejoren la rentabilidad general del negocio.
 
 
 Se opto por un enfoque metodológico que emplea gráficos de violín y boxplots de manera conjunta ya que esta elección de visualización proporciona una visión completa de la distribución de los datos.
@@ -241,3 +241,191 @@ Las diferencias más significativas aparecen en categorías especializadas como 
 El chocolate para beber se ha convertido en la especialidad de Astoria, donde genera 26.3 mil dólares, significativamente más que en las otras ubicaciones. Esto sugiere que esta categoría ha logrado un posicionamiento cultural específico en esa comunidad, posiblemente asociado con tradiciones locales o preferencias estacionales. Mientras tanto, los sabores especializados muestran una progresión geográfica clara que va aumentando desde Astoria hasta Lower Manhattan, indicando que los gustos más sofisticados se concentran en áreas más urbanizadas y comerciales.
 
 Estos hallazgos pintan un panorama claro: cada sucursal ha desarrollado un perfil de cliente distinto con preferencias específicas. Lower Manhattan atrae clientes orientados al premium y la experiencia gourmet, Hell's Kitchen atrae conocedores del café que valoran la autenticidad, y Astoria mantiene una base de clientes leales con gustos más tradicionales. Esta comprensión permite diseñar estrategias de surtido y marketing altamente personalizadas que maximicen el potencial de cada ubicación.
+
+
+### 🟫 Análisis por mes
+
+Este análisis mensual se desarrolló como complemento esencial al análisis previo por sucursal y categorías de producto, con el objetivo de identificar patrones temporales y estacionalidad en el comportamiento de ventas a lo largo del primer semestre del año. Básicamente, este análisis por mes nos permite entender cuándo ocurren los picos de desempeño y cómo evolucionan las ventas en el tiempo.
+
+Trabajamos con  el gráfico de barras agrupadas como herramienta visual principal porque nos permitió identificar de manera inmediata:
+
+- Tendencias de crecimiento o decrecimiento mensual
+
+- Patrones estacionales consistentes entre sucursales
+
+- Meses críticos de máximo y mínimo desempeño
+
+---
+
+```{r grafico_mes_sucursal_mejorado, echo=FALSE, message=FALSE, warning=FALSE}
+# PRIMERO crear la variable mes_abreviado si no existe
+vicsha_basededatos <- vicsha_basededatos %>%
+  mutate(mes_abreviado = toupper(paste("MES", format(fecha_de_transaccion, "%b"))))
+
+# LUEGO crear el gráfico por mes y sucursal
+datos_mes_sucursal <- vicsha_basededatos %>%
+  group_by(mes_abreviado, ubicacion_tienda) %>%
+  summarise(ingresos_totales = sum(total_ingresos))
+
+# Ordenar los meses correctamente
+niveles_meses <- c("MES ENE", "MES FEB", "MES MAR", "MES ABR", "MES MAY", "MES JUN")
+datos_mes_sucursal$mes_abreviado <- factor(datos_mes_sucursal$mes_abreviado, levels = niveles_meses)
+
+ggplot(datos_mes_sucursal, aes(x = mes_abreviado, y = ingresos_totales, fill = ubicacion_tienda)) +
+  geom_col(position = "dodge", alpha = 0.9, width = 0.7) +
+  labs(
+    title = "☕ INGRESOS MENSUALES POR SUCURSAL",
+    subtitle = "Análisis Estacional por Ubicación - Vícsha Coffee",
+    x = "MES",
+    y = "INGRESOS TOTALES",
+    fill = "SUCURSAL"
+  ) +
+  scale_fill_manual(values = c("#8B4513", "#D2691E", "#CD853F")) +  # Colores café
+  scale_y_continuous(labels = scales::dollar_format(scale = 1e-3, suffix = "K")) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 10, face = "bold"),
+    axis.text.y = element_text(size = 9),
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5, color = "#4E342E"),
+    plot.subtitle = element_text(size = 12, hjust = 0.5, color = "#6D4C41"),
+    legend.position = "bottom",
+    panel.grid.major = element_line(color = "#F5F5F5"),
+    panel.background = element_rect(fill = "#FFF8E1", color = NA)
+  )
+```
+
+---
+
+El gráfico muestra un patrón estacional muy claro a lo largo del primer semestre del año. Podemos observar que todas las sucursales experimentan un crecimiento progresivo desde enero hasta abril, donde alcanzan su pico máximo de ingresos. Este mes de abril representa claramente el mejor momento del semestre para todas las ubicaciones, seguido de una ligera corrección en mayo y una estabilización en junio. Este comportamiento sugiere factores estacionales externos que afectan por igual a todas las sucursales, posiblemente relacionados con temporadas turísticas, eventos corporativos o promociones estacionales.
+
+Al analizar el desempeño por sucursal, encontramos que Astoria se mantiene consistentemente como la líder indiscutible en todos los meses, mostrando volúmenes de ingresos significativamente superiores a las otras dos ubicaciones. Hell's Kitchen ocupa una posición sólida en segundo lugar, manteniendo una brecha constante pero manejable respecto a la sucursal líder. Lower Manhattan, por su parte, muestra los niveles más bajos de ingresos, aunque sigue el mismo patrón estacional que sus competidoras.
+
+La brecha de desempeño entre sucursales es notable y consistente. Astoria supera a Hell's Kitchen por márgenes que oscilan entre los $15,000 y $20,000 mensuales, mientras que la diferencia con Lower Manhattan es aún más pronunciada, alcanzando entre $25,000 y $35,000 de diferencia por mes. Estas disparidades sugieren diferencias fundamentales en capacidad operativa, ubicación estratégica, efectividad comercial o volumen de tráfico de clientes.
+
+Las oportunidades de mejora son claras. Para Astoria, el desafío es mantener su liderazgo mediante la estandarización de sus mejores prácticas. Hell's Kitchen debería enfocarse en cerrar la brecha mediante benchmarking y aprendizaje de la sucursal líder. Lower Manhattan requiere una intervención más profunda, posiblemente incluyendo una revisión completa de su estrategia comercial y operativa. El mes de abril, siendo excepcional para todas, merece un análisis particular para entender los factores detrás de este éxito y replicarlos en otros periodos.
+
+
+### 🟫 Análisis por turno horario 
+
+Este análisis por turno horario se desarrolló como complemento estratégico a los análisis previos por sucursal y mes, con el objetivo fundamental de identificar los patrones de consumo a lo largo del día y optimizar la operación según las franjas horarias de mayor demanda.
+
+Mientras el análisis por sucursal nos mostró dónde se generan los ingresos y el análisis por mes reveló cuándo ocurren los picos de ventas, este análisis por turno nos permite entender cómo se distribuye el consumo durante el día y en qué horarios debemos focalizar nuestros esfuerzos operativos.
+
+```{r setup_turno, include=FALSE}
+
+# Crear variable turno
+vicsha_basededatos$hora <- hour(vicsha_basededatos$hora_de_transaccion)
+vicsha_basededatos$turno <- ifelse(
+  vicsha_basededatos$hora >= 6 & vicsha_basededatos$hora < 14, "MAÑANA",
+  ifelse(
+    vicsha_basededatos$hora >= 14 & vicsha_basededatos$hora < 22, "TARDE", 
+    "NOCHE"
+  )
+)
+
+# Preparar datos para gráficos
+
+datos_turno_grafico <- vicsha_basededatos %>%
+  group_by(turno) %>%
+  summarise(
+    ingresos_totales = sum(total_ingresos, na.rm = TRUE),
+    transacciones_totales = n(),
+    ticket_promedio = mean(total_ingresos, na.rm = TRUE)
+  )
+
+total_ingresos <- sum(datos_turno_grafico$ingresos_totales)
+datos_turno_grafico$porcentaje_ingresos <- (datos_turno_grafico$ingresos_totales / total_ingresos) * 100
+datos_turno_grafico$turno <- factor(datos_turno_grafico$turno, 
+                                   levels = c("MAÑANA", "TARDE", "NOCHE"))
+```
+
+```{r resumen_turno, echo=FALSE}
+
+
+cat("=== RESUMEN POR TURNO HORARIO ===\n\n")
+for(i in 1:nrow(datos_turno_grafico)) {
+  cat("🔸", as.character(datos_turno_grafico$turno[i]), ":\n")
+  cat("   • Ingresos:", dollar(datos_turno_grafico$ingresos_totales[i]), "\n")
+  cat("   • Transacciones:", format(datos_turno_grafico$transacciones_totales[i], big.mark = ","), "\n")
+  cat("   • Ticket promedio:", dollar(datos_turno_grafico$ticket_promedio[i]), "\n")
+  cat("   • Contribución:", round(datos_turno_grafico$porcentaje_ingresos[i], 1), "%\n\n")
+}
+
+cat("📈 TURNO MÁS RENTABLE:", as.character(datos_turno_grafico$turno[which.max(datos_turno_grafico$ingresos_totales)]), "\n")
+cat("👥 TURNO CON MÁS TRANSACCIONES:", as.character(datos_turno_grafico$turno[which.max(datos_turno_grafico$transacciones_totales)]), "\n")
+cat("💰 TURNO CON MAYOR TICKET PROMEDIO:", as.character(datos_turno_grafico$turno[which.max(datos_turno_grafico$ticket_promedio)]), "\n")
+```
+
+```{r grafico_principal_turno, echo=FALSE, fig.height=6, fig.width=10}
+ggplot(datos_turno_grafico, aes(x = turno, y = ingresos_totales, fill = turno)) +
+  geom_col(alpha = 0.9) +
+  geom_text(aes(label = dollar(ingresos_totales)), 
+            vjust = -0.5, size = 5, fontface = "bold") +
+  labs(
+    title = "🌅 INGRESOS POR TURNO HORARIO",
+    subtitle = "Desempeño Comercial por Franja Horaria - Vícsha Coffee",
+    x = "TURNO",
+    y = "INGRESOS TOTALES"
+  ) +
+  scale_fill_manual(values = c("#6D4C41", "#FF8C00", "#8B4513")) +
+  scale_y_continuous(labels = dollar_format(scale = 1e-3, suffix = "K")) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 18, hjust = 0.5),
+    plot.subtitle = element_text(size = 12, hjust = 0.5),
+    legend.position = "none"
+  )
+```
+
+```{r grafico_pastel_turno, echo=FALSE, fig.height=6, fig.width=8}
+ggplot(datos_turno_grafico, aes(x = "", y = ingresos_totales, fill = turno)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = paste0(round(porcentaje_ingresos, 1), "%")), 
+            position = position_stack(vjust = 0.5), 
+            size = 6, fontface = "bold", color = "white") +
+  labs(
+    title = "🥧 DISTRIBUCIÓN DE INGRESOS POR TURNO",
+    subtitle = "Contribución porcentual de cada franja horaria",
+    fill = "TURNO"
+  ) +
+  scale_fill_manual(values = c("#6D4C41", "#FF8C00", "#8B4513")) +
+  theme_void() +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+    plot.subtitle = element_text(size = 12, hjust = 0.5)
+  )
+```
+
+---
+
+El turno de la mañana emerge como el período más crítico para el negocio, concentrando el 67.1% de los ingresos totales con $468,849 generados. Esta franja horaria no solo lidera en volumen monetario, sino que también registra la mayor cantidad de transacciones (99,173) y el ticket promedio más alto ($4.73), consolidándose como el corazón operativo de Vícsha Coffee.
+
+La marcada diferencia entre el turno de la mañana (67.1%) y la tarde (32.9%) revela una oportunidad estratégica significativa. Mientras la mañana opera a máxima capacidad, la tarde presenta un potencial de crecimiento sustancial, con $229,963 en ingresos que podrían optimizarse mediante estrategias comerciales específicas.
+
+El ticket promedio se mantiene notablemente consistente across todos los turnos ($4.73 en mañana vs $4.60 en tarde), indicando que la experiencia de compra y el perfil de gasto del cliente son similares independientemente del horario. Esta consistencia sugiere que las estrategias de upselling y cross-selling podrían aplicarse uniformemente.
+
+##  🧠 Conclusión Final
+
+El análisis exploratorio de ventas de la franquicia Vícsha ha facilitado la creación de un análisis preciso del comportamiento de consumo en sus diversas sucursales. Mediante una segmentación que abarca ubicación, categoría de producto, temporalidad y franja horaria, se han detectado patrones consistentes que señalan tanto fortalezas ya establecidas como oportunidades específicas de crecimiento. 
+
+Astoria se posiciona como la sucursal más estable, con clientes regulares y transacciones homogéneas. Su fortaleza radica en la consistencia, aunque presenta menor variabilidad en el ticket promedio, lo que limita el potencial de ventas de alto valor. Hell’s Kitchen, por su parte, muestra un equilibrio saludable entre volumen y diversidad de transacciones, lo que la convierte en un punto estratégico para probar nuevas categorías y tácticas de fidelización. Lower Manhattan destaca por su alta dispersión y presencia de compras premium, lo que sugiere un perfil corporativo y sofisticado que puede capitalizarse con productos de marca, experiencias gourmet y estrategias de exclusividad.
+
+El café se reafirma como el eje central y consistente del negocio en todas las ubicaciones, generando ingresos estables. No obstante, la diferenciación clave se encuentra en los complementos. La panadería tiene un desempeño sólido y estable, mientras que los productos especializados muestran una fuerte segmentación geográfica: Hell's Kitchen lidera en venta de granos de café (cliente conocedor), y Lower Manhattan destaca en productos de marca (mayor poder adquisitivo). Astoria, por su parte, ha logrado posicionar el chocolate para beber como una especialidad local, lo que sugiere una conexión cultural a explotar.
+
+El análisis temporal revela un patrón estacional claro: las ventas crecen de enero a un pico máximo en abril, seguido de una corrección y estabilización en junio. Este comportamiento sugiere la influencia de factores externos (turismo, promociones). El desempeño de abril debe ser estudiado particularmente para identificar sus impulsores y replicarlos. Además, esta estacionalidad debe ser una consideración central en la planificación de inventario, personal y campañas.
+
+Finalmente, el análisis por turno confirma que la mañana es el corazón operativo de Vícsha, concentrando más del 67% de los ingresos, el mayor volumen de transacciones y el ticket promedio más alto. Esta franja es el momento de máxima eficiencia. Aunque la tarde es menos rentable, su perfil de gasto similar abre la puerta a estrategias de activación como promociones específicas y campañas de fidelización.
+
+
+### 📌 Recomendaciones Estratégicas
+
+• 	Segmentar la gestión por sucursal, adaptando surtido, promociones y experiencia según el perfil de cliente local.
+
+• 	Fortalecer el turno de la mañana, manteniendo su eficiencia operativa y explorando estrategias para replicar su éxito en la tarde.
+
+• 	Optimizar el surtido por categoría, potenciando productos premium en Lower Manhattan, granos en Hell’s Kitchen y especialidades locales en Astoria.
+
+• 	Aprovechar el ciclo estacional, diseñando campañas específicas para el primer trimestre y replicando las condiciones de éxito de abril.
+
+• 	Implementar visualizaciones operativas en tiempo real, que permitan monitorear el desempeño por franja horaria y categoría, facilitando decisiones ágiles.
