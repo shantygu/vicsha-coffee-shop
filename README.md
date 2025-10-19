@@ -1,7 +1,7 @@
 # ☕ Coffee Vicscha
 
 <p align="center">
-  <img src="Portada.png" alt="Coffee Vicsha Banner" width="800">
+  <img src="portadaoficial.png" alt="Coffee Vicsha Banner" width="800">
 </p>
 
 
