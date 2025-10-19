@@ -1,5 +1,5 @@
 ---
-title: "☕ Coffee Vicscha: Análisis de Consumo y Estrategias de Rentabilidad"
+title: "☕ Coffee Vicsha: Análisis de Consumo y Estrategias de Rentabilidad"
 author: "Victoria Díaz y Schantal Gutiérrez"
 date: "`r format(Sys.Date(), '%d de %B de %Y')`"
 output:
