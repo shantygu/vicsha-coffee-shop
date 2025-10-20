@@ -22,10 +22,127 @@ library(dplyr)
 library(readxl)
 library(lubridate)
 library(scales)
+library(kableExtra)
+library(knitr)
+library(DT)
 
 ```
 
+```{r funcion, echo=FALSE}
+#CALCULOS POR TIENDA. 
+#Creamos las funciones que necesitaremos más adelante que no vienen incluidas con R. 
 
+desviacion_mediana <- function(x) {
+  # Validaciones
+  if (length(x) == 0 || all(is.na(x))) {
+    return(NA)
+  }
+  
+  x <- na.omit(x)
+  med <- median(x)
+  
+  # Para evitar problemas con un solo valor
+  if (length(x) == 1) {
+    return(0)
+  }
+  
+  # Calcular la desviación mediana correctamente
+  sqrt(mean((x - med)^2))
+}
+
+analizar_y_formatear <- function(df, grupo, 
+                                 titulo = "Análisis Estadístico de Ingresos",
+                                 subtitulo = NULL,
+                                 nota = NULL) {
+  
+  # Validaciones iniciales CORREGIDAS
+  if (!deparse(substitute(df)) %in% ls(envir = .GlobalEnv)) {
+    stop("El dataframe no existe")
+  }
+  
+  grupo_str <- deparse(substitute(grupo))
+  if (!grupo_str %in% names(df)) {
+    stop("La variable de agrupación no existe en el dataframe")
+  }
+  
+  # Calcular estadísticas CORREGIDO (usando sym() y !!)
+  resultado <- df %>%
+    group_by(across({{grupo}})) %>%
+    summarise(
+      transacciones = n(),
+      ingreso_total = sum(total_ingresos, na.rm = TRUE),  # CORREGIDO: backticks
+      ingreso_minimo = min(total_ingresos, na.rm = TRUE),
+      ingreso_maximo = max(total_ingresos, na.rm = TRUE),
+      rango_ingresos = ingreso_maximo - ingreso_minimo,
+      ingreso_promedio = mean(total_ingresos, na.rm = TRUE),
+      ingreso_mediano = median(total_ingresos, na.rm = TRUE),
+      desviacion_ingresos = sd(total_ingresos, na.rm = TRUE),
+      desviacion_mediana = desviacion_mediana(total_ingresos),
+      cv_ingresos = (desviacion_ingresos/ingreso_promedio)*100,
+      q1_ingresos = quantile(total_ingresos, 0.25, na.rm = TRUE),
+      q3_ingresos = quantile(total_ingresos, 0.75, na.rm = TRUE),
+      .groups = 'drop'
+    ) %>%
+    mutate(across(where(is.numeric), ~ round(., 2)))
+  
+  # Crear tabla formateada CORREGIDA
+  tabla_formateada <- resultado %>%
+    rename(Grupo = 1) %>%  # Renombrar la primera columna dinámicamente
+    kable(
+      format = "html",  # EXPLÍCITAMENTE especificar formato HTML
+      caption = titulo,
+      col.names = c("Grupo", 
+                    "N° Transacciones",
+                    "Ingreso Total ($)",
+                    "Ingreso Mínimo ($)",
+                    "Ingreso Máximo ($)", 
+                    "Rango ($)",
+                    "Promedio ($)",
+                    "Mediano ($)",
+                    "Desv. Estándar ($)",
+                    "Desv. Mediana ($)",
+                    "CV %",
+                    "Q1 ($)",
+                    "Q3 ($)"),
+      align = c("l", rep("c", ncol(resultado) - 1))
+    ) %>%
+    kable_styling(
+      bootstrap_options = c("striped", "hover", "condensed"),
+      full_width = TRUE,
+      font_size = 11,
+      position = "center"
+    ) %>%
+    row_spec(0, bold = TRUE, background = "#f8f9fa") %>%
+    column_spec(1, bold = TRUE, width = "3cm") %>%
+    column_spec(2, width = "2cm") %>%
+    column_spec(3:8, width = "2.5cm") %>%
+    column_spec(9:12, width = "2.2cm") %>%
+    column_spec(11, background = "#f0f8ff") %>%  # Destacar CV
+    scroll_box(width = "100%", height = "500px")
+  
+  # Agregar subtítulo si se proporciona
+  if (!is.null(subtitulo)) {
+    tabla_formateada <- tabla_formateada %>%
+      add_header_above(c(" " = 1, subtitulo = ncol(resultado) - 1))
+  }
+  
+  # Agregar nota si se proporciona CORREGIDO
+  if (!is.null(nota)) {
+    tabla_formateada <- tabla_formateada %>%
+      footnote(
+        general = paste(nota, "| Todas las métricas en dólares ($) excepto CV (%)"),
+        general_title = "Nota:",
+        footnote_as_chunk = TRUE
+      )
+  }
+  
+  return(list(
+    datos = resultado,
+    tabla = tabla_formateada
+  ))
+}
+
+```
 
 
 El éxito operativo y comercial de una cadena de cafeterías como 'VICSHA'  se encuentra en la capacidad de comprender y anticipar ciertos aspectos o  patrones de consumo de nuestros clientes. Comprendiendo que cada una de las transacciones registradas en sus múltiples sedes es una valiosa pieza de información que, al ser analizada, permite tomar decisiones estratégicas de alto impacto para la franquicia. Este análisis se sumerge en los datos de ventas de vicsha para entender qué impulsa el consumo, cuándo ocurre y cómo optimizarlo.
@@ -125,9 +242,10 @@ Se opto por un enfoque metodológico que emplea gráficos de violín y boxplots 
 Los gráficos de violín ilustran la densidad de las transacciones, lo que nos permite identificar los rangos de precio donde se concentra el mayor volumen de ventas. Por su parte, los boxplots superpuestos ofrecen métricas estadísticas esenciales: la mediana, los cuartiles y los valores atípicos y asi al combinar ambas herramientas, podemos ir más allá del simple valor típico de una transacción por sucursal. Logramos comprender tanto la variabilidad como la forma completa de la distribución de ingresos.
 
 ---
-```{r analiis previo , echo=FALSE}
-data_coffe <- read_excel("C:/Users/schan/Downloads/Coffee Shop Sales.xlsx")
+```{r analisis previo , echo=FALSE}
+data_coffe <- read_excel("C:/Users/vicoa/Downloads/Coffee Shop Sales.xlsx")
 
+#Aplicamos las modificaciones documentadas en nuestro nuevo dataframe, que será el que utilizaremos como base para el resto del trabajo. 
 vicsha_basededatos <- data_coffe %>%
   rename(
     id_transaccion = transaction_id,
@@ -141,9 +259,21 @@ vicsha_basededatos <- data_coffe %>%
     categoria_producto = product_category,
     tipo_de_producto = product_type,
     detalles_del_producto = product_detail
-  ) %>%
+  )%>%
   mutate(
-    total_ingresos = cantidad_vendida * precio_unitario
+    total_ingresos = cantidad_vendida * precio_unitario,
+    mes_abreviado = toupper(paste("MES", format(fecha_de_transaccion, "%b")))
+  )
+
+vicsha_basededatos <- vicsha_basededatos %>%
+  mutate(
+    hora_de_transaccion = ymd_hms(hora_de_transaccion),  # convertir a datetime
+    hora = hour(hora_de_transaccion),
+    turno = case_when(
+      hora >= 6 & hora < 14 ~ "HORARIO DE LA MAÑANA",
+      hora >= 14 & hora < 22 ~ "HORARIO DE LA TARDE/NOCHE",
+      TRUE ~ "HORARIO DE LA NOCHE"
+    )
   )
 ```
 
@@ -167,6 +297,38 @@ ggplot(vicsha_basededatos, aes(x = ubicacion_tienda, y = total_ingresos)) +
 
 #### RESULTADOS DETALLADOS POR SUCURSAL
 
+
+```{r tabla_completa_interactiva, echo=FALSE}
+
+
+vicsha_portienda <- analizar_y_formatear(
+  df = vicsha_basededatos,
+  grupo = ubicacion_tienda,
+  titulo = "Análisis COMPLETO de ingresos por tienda",
+  nota = "Tabla interactiva - Use los controles para filtrar y ordenar"
+)
+
+# Convertir a datatable INTERACTIVA
+datatable(
+  vicsha_portienda$datos,
+  rownames = FALSE,
+  filter = 'top',
+  extensions = c('Buttons', 'Scroller'),
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel'),
+    scrollX = TRUE,
+    scrollY = "400px",
+    scroller = TRUE,
+    pageLength = 10
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center;',
+    htmltools::strong('ANÁLISIS COMPLETO DE INGRESOS POR TIENDA')
+  )
+)
+```
+
 ASTORIA - Clientes Consistentes
 
 La distribución muestra ventas concentradas en montos medios-bajos, con una mediana alrededor de $50-60. La forma del violín es estrecha y alta, indicando que la mayoría de las transacciones caen dentro de un rango similar. Hay poca variabilidad en los montos, lo que sugiere que los clientes tienen hábitos de compra regulares y predecibles. Los valores atípicos son mínimos, confirmando la consistencia en el comportamiento del cliente. Esta sucursal se caracteriza por transacciones estables pero con poco potencial para ventas de alto valor.
@@ -181,6 +343,36 @@ La distribución es la más amplia de las tres, con mediana alrededor de $80-90 
 
 
 ### 🟫 Análisis por categoria de producto 
+
+```{r tabla 2, echo=FALSE}
+vicsha_porproducto <- analizar_y_formatear(
+  df = vicsha_basededatos,
+  grupo = categoria_producto,
+  titulo = "Análisis comparativo de los ingresos por cada categoría del menú",
+  nota = "La información proporcionada comprende la cantidad total de datos de un semestre"
+)
+
+datatable(
+  vicsha_porproducto$datos,
+  rownames = FALSE,
+  filter = 'top',
+  extensions = c('Buttons', 'Scroller'),
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel'),
+    scrollX = TRUE,
+    scrollY = "400px",
+    scroller = TRUE,
+    pageLength = 10
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center;',
+    htmltools::strong('ANÁLISIS COMPLETO DE INGRESOS POR TIENDA')
+  )
+)
+
+```
+
 
 Este análisis de categorías de producto se realizó como complemento estratégico al análisis previo por sucursal, con el objetivo fundamental de descubrir los patrones de consumo específicos por tipo de producto y cómo estos interactúan con las diferentes ubicaciones geográficas.
 
@@ -245,6 +437,41 @@ Estos hallazgos pintan un panorama claro: cada sucursal ha desarrollado un perfi
 
 ### 🟫 Análisis por mes
 
+```{r tabla 3, echo=FALSE}
+niveles_meses_abreviados <- c("MES ENE", "MES FEB", "MES MAR", "MES ABR", "MES MAY", "MES JUN")
+
+vicsha_ordenado <- vicsha_basededatos %>%
+  mutate(mes_abreviado = factor(mes_abreviado, levels = niveles_meses_abreviados, ordered = TRUE))
+
+vicsha_pormes <- analizar_y_formatear(
+  df = vicsha_ordenado,
+  grupo = mes_abreviado,
+  titulo = "Análisis comparativo de los ingresos por cada mes",
+  nota = "La información proporcionada comprende la cantidad total de datos de un semestre"
+)
+
+# Convertir a datatable INTERACTIVA
+datatable(
+  vicsha_pormes$datos,
+  rownames = FALSE,
+  filter = 'top',
+  extensions = c('Buttons', 'Scroller'),
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel'),
+    scrollX = TRUE,
+    scrollY = "400px",
+    scroller = TRUE,
+    pageLength = 10
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center;',
+    htmltools::strong('ANÁLISIS COMPLETO DE INGRESOS POR TIENDA')
+  )
+)
+```
+
+
 Este análisis mensual se desarrolló como complemento esencial al análisis previo por sucursal y categorías de producto, con el objetivo de identificar patrones temporales y estacionalidad en el comportamiento de ventas a lo largo del primer semestre del año. Básicamente, este análisis por mes nos permite entender cuándo ocurren los picos de desempeño y cómo evolucionan las ventas en el tiempo.
 
 Trabajamos con  el gráfico de barras agrupadas como herramienta visual principal porque nos permitió identificar de manera inmediata:
@@ -307,6 +534,40 @@ Las oportunidades de mejora son claras. Para Astoria, el desafío es mantener su
 
 ### 🟫 Análisis por turno horario 
 
+```{r turno, echo=FALSE}
+niveles_horarios_abreviados <- c("HORARIO DE LA MAÑANA", "HORARIO DE LA TARDE/NOCHE", "HORARIO DE LA NOCHE")
+vicsha_ordenadoporturno <- vicsha_basededatos %>%
+  mutate(mes_abreviado = factor(turno, levels = niveles_horarios_abreviados, ordered = TRUE))
+
+vicsha_porturno<- analizar_y_formatear(
+  df = vicsha_ordenadoporturno,
+  grupo = turno,
+  titulo = "Análisis comparativo de los ingresos por cada turno",
+  nota = "La información proporcionada comprende la cantidad total de datos de un semestre"
+)
+
+# Convertir a datatable INTERACTIVA
+datatable(
+  vicsha_porturno$datos,
+  rownames = FALSE,
+  filter = 'top',
+  extensions = c('Buttons', 'Scroller'),
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel'),
+    scrollX = TRUE,
+    scrollY = "400px",
+    scroller = TRUE,
+    pageLength = 10
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center;',
+    htmltools::strong('ANÁLISIS COMPLETO DE INGRESOS POR TIENDA')
+  )
+)
+```
+
+
 Este análisis por turno horario se desarrolló como complemento estratégico a los análisis previos por sucursal y mes, con el objetivo fundamental de identificar los patrones de consumo a lo largo del día y optimizar la operación según las franjas horarias de mayor demanda.
 
 Mientras el análisis por sucursal nos mostró dónde se generan los ingresos y el análisis por mes reveló cuándo ocurren los picos de ventas, este análisis por turno nos permite entender cómo se distribuye el consumo durante el día y en qué horarios debemos focalizar nuestros esfuerzos operativos.
@@ -337,23 +598,6 @@ total_ingresos <- sum(datos_turno_grafico$ingresos_totales)
 datos_turno_grafico$porcentaje_ingresos <- (datos_turno_grafico$ingresos_totales / total_ingresos) * 100
 datos_turno_grafico$turno <- factor(datos_turno_grafico$turno, 
                                    levels = c("MAÑANA", "TARDE", "NOCHE"))
-```
-
-```{r resumen_turno, echo=FALSE}
-
-
-cat("=== RESUMEN POR TURNO HORARIO ===\n\n")
-for(i in 1:nrow(datos_turno_grafico)) {
-  cat("🔸", as.character(datos_turno_grafico$turno[i]), ":\n")
-  cat("   • Ingresos:", dollar(datos_turno_grafico$ingresos_totales[i]), "\n")
-  cat("   • Transacciones:", format(datos_turno_grafico$transacciones_totales[i], big.mark = ","), "\n")
-  cat("   • Ticket promedio:", dollar(datos_turno_grafico$ticket_promedio[i]), "\n")
-  cat("   • Contribución:", round(datos_turno_grafico$porcentaje_ingresos[i], 1), "%\n\n")
-}
-
-cat("📈 TURNO MÁS RENTABLE:", as.character(datos_turno_grafico$turno[which.max(datos_turno_grafico$ingresos_totales)]), "\n")
-cat("👥 TURNO CON MÁS TRANSACCIONES:", as.character(datos_turno_grafico$turno[which.max(datos_turno_grafico$transacciones_totales)]), "\n")
-cat("💰 TURNO CON MAYOR TICKET PROMEDIO:", as.character(datos_turno_grafico$turno[which.max(datos_turno_grafico$ticket_promedio)]), "\n")
 ```
 
 ```{r grafico_principal_turno, echo=FALSE, fig.height=6, fig.width=10}
