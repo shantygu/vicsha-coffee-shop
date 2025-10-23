@@ -50,13 +50,13 @@ El archivo principal es coffe_vicsha.rmd  Incluye:
 
 ## 📸 Ver Dashboard
 
-🔗 Explorar el dashboard interactivo
+🔗 Explorar el dashboard interactivo  https://vicsha-coffee-shop-1.onrender.com
 
 ## 🛠️ Tecnologías
 
 • 	Análisis: R + R Markdown
 
-• 	Dashboard: Python + 
+• 	Dashboard: Python + Streamlit 
 
 • 	Datos: Excel (xlsx)
 
