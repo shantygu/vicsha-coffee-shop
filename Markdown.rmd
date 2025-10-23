@@ -515,17 +515,220 @@ datatable(
 - Categorías premium (Coffee beans, Branded) muestran alto valor promedio pero bajo volumen
 
 **Oportunidades de Mix Comercial**
+
 - Bakery tiene alta rotación pero bajo valor promedio. Existe una oportunidad para estrategias de upselling, tales como: ofrecer combos que incluyan productos de bakery con bebidas premium (coffee beans o branded) para incrementar el ticket promedio, debido a que la categoría Bakery presenta una combinación única de alto volumen transaccional (7,289 transacciones) pero bajo valor promedio por ticket ($3.65), situándose muy por debajo del promedio general de la sucursal.
 
 - Drinking Chocolate combina volumen moderado con buen valor promedio, lo que la convierte en el candidato ideal para programas de fidelización. Por ejemplo: Implementar un sistema de "10 bebidas de chocolate, 1 gratis" que incentive la repetición de compra.
 
 **Segmentación de Clientes**
+
 - Flavours representa el segmento de menor valor. Lo ideal sería crear una posible estrategia para atracción de nuevos clientes o descartar la categoría del menú. 
+
 - Productos premium muestran patrones de compra más variables.
 
-HELL'S KITCHEN - Equilibrio Diversificado
+### SUCURSAL HELL'S KITCHEN
 
 Presenta una distribución más amplia y balanceada, con mediana alrededor de $70-80. El violín tiene forma simétrica, mostrando una mezcla saludable de transacciones pequeñas, medianas y algunas grandes. La variabilidad moderada indica que atiende a diferentes tipos de clientes, posiblemente combinando residentes locales con visitantes. Hay algunos valores atípicos en ambos extremos, pero nada extremo. Esta ubicación muestra el mejor balance entre volumen y valor por transacción.
+
+```{r hell_analisis1, echo=FALSE}
+
+df_agrupado_por_Hell_orderm <- vicsha_ordenado%>% #orderm= ordenado por mes 
+  filter( ubicacion_tienda == "Hell's Kitchen")
+
+df_agrupado_por_Hell_ordert <- vicsha_ordenadoporturno%>%   #orderm= ordenado por turno
+  filter( ubicacion_tienda == "Hell's Kitchen")
+
+Hell_pormes <- analizar_y_formatear(
+  df = df_agrupado_por_Hell_orderm,
+  grupo = mes_abreviado,
+  titulo = "Análisis comparativo de los ingresos por cada mes en la Sucursal Hell's Kitchen",
+  nota = "La información proporcionada comprende la cantidad total de datos de un semestre"
+)
+
+datatable(
+  Hell_pormes$datos,
+  rownames = FALSE,
+  filter = 'top',
+  extensions = c('Buttons', 'Scroller'),
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel'),
+    scrollX = TRUE,
+    scrollY = "400px",
+    scroller = TRUE,
+    pageLength = 10
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center;',
+    htmltools::strong('ANÁLISIS DE INGRESOS POR MES')
+  )
+)
+
+
+```
+
+**Indicadores clave del desempeño de la Sucursal Hell's Kitchen por mes**
+
+**📊 Volumen de Transacciones por Mes**
+- **Mes con mayor volumen**: Junio (12,071 transacciones)
+- **Mes con menor volumen**: Febrero (5,606 transacciones)
+- **Tendencia**: Crecimiento progresivo de Febrero a Junio
+
+**💰 Ingresos Totales**
+- **Mes con mayores ingresos**: Junio (USD 56,957.08)
+- **Mes con menores ingresos**: Febrero (USD 25,719.80)
+
+**📈 Análisis del Centro de la Distribución (Media vs. Mediana)**
+- **Mediana constante**: 3.75 en todos los meses
+- **Media fluctuante**: Entre 4.56 y 4.74
+- **Relación media-mediana**: La media consistentemente mayor que la mediana en aproximadamente 0.81-0.99 puntos
+- **Interpretación**: Distribución sesgada hacia la derecha en todos los meses, con valores altos que elevan el promedio por encima del valor típico
+
+**📋 Dispersión de Ingresos**
+- **Mes con mayor dispersión relativa**: Enero (CV: 153.14%)
+- **Mes con menor dispersión relativa**: Febrero (CV: 66.22%)
+- **Patrón de rango**: Meses con rango 359.2 (Ene, Abr, May, Jun) vs meses con rango 44.2 (Feb, Mar)
+
+**🎯 Perspectiva para Directivos**
+
+**Comportamiento Base Consistente**
+La mayoría de las transacciones mantienen un valor estable alrededor de USD 3.75, lo que indica un patrón de consumo confiable en la base de clientes.
+
+**Oportunidad en Clientes de Alto Valor**
+La diferencia constante entre el promedio y el valor típico señala la presencia de clientes que realizan compras significativamente mayores, representando una oportunidad para programas de fidelización premium.
+
+**Estacionalidad Pronunciada**
+Identificamos meses con comportamientos radicalmente diferentes en términos de variabilidad, sugiriendo la necesidad de estrategias comerciales diferenciadas por temporada.
+
+**Gestión de Volatilidad**
+Los meses de alta dispersión requieren atención especial en gestión de inventario y capacidad operativa, mientras que los meses estables permiten una planificación más predecible.
+
+**Foco en Estrategias Comerciales**
+La estabilidad del núcleo del negocio permite enfocar esfuerzos en capturar mayor valor de los clientes existentes y desarrollar tácticas para los períodos de mayor variabilidad.
+
+```{r hell_analisis2, echo=FALSE}
+Hell_porturno <- analizar_y_formatear(
+  df = df_agrupado_por_Hell_ordert,
+  grupo = turno,
+  titulo = "Análisis comparativo de los ingresos por turno en la Sucursal Hell's Kitchen",
+  nota = "La información proporcionada comprende la cantidad total de datos de un semestre"
+)
+
+datatable(
+  Hell_porturno$datos,
+  rownames = FALSE,
+  filter = 'top',
+  extensions = c('Buttons', 'Scroller'),
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel'),
+    scrollX = TRUE,
+    scrollY = "400px",
+    scroller = TRUE,
+    pageLength = 10
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center;',
+    htmltools::strong('ANÁLISIS DE INGRESOS POR TURNO')
+  )
+)
+
+```
+**Indicadores clave del desempeño de la Sucursal Hell's Kitchen por turno**
+
+**📊 Distribución del Volumen por Turno**
+- **Turno de mayor actividad**: Mañana (34,429 transacciones - 68% del total)
+- **Turno de menor actividad**: Tarde/Noche (16,306 transacciones - 32% del total)
+- **Diferencia**: 18,123 transacciones a favor del turno matutino
+
+**💰 Contribución a Ingresos**
+- **Turno con mayores ingresos**: Mañana (USD 162,856.50)
+- **Turno con menores ingresos**: Tarde/Noche (USD 73,654.67)
+
+**📈 Comportamiento de Valores por Transacción**
+- **Mediana consistente**: 3.75 USD en ambos turnos
+- **Promedio similar**: Mañana 4.73 USD vs Tarde/Noche 4.52 USD
+- **Patrón común**: Ambos turnos muestran valores promedio superiores a la mediana
+
+**🎯 Perspectiva para Directivos**
+
+**Dominio Claro del Turno Matutino**
+El horario de la mañana concentra más del doble de la actividad comercial, estableciéndose como el corazón operativo de la sucursal.
+
+**Perfiles de Cliente Diferentes**
+Mientras el turno de la mañana presenta transacciones de mayor variabilidad (posibles compras corporativas o grupos), la tarde muestra un comportamiento más homogéneo y predecible.
+
+**Estrategias por Turno Específicas**
+- **Mañana**: Enfocar esfuerzos en capturar y retener el alto volumen, optimizando tiempos de servicio
+- **Tarde/Noche**: Oportunidad para incrementar valor promedio mediante upselling y experiencias premium
+
+**Estabilidad del Cliente Regular**
+El valor típico de 3.75 USD se mantiene constante en ambos turnos, indicando una base de clientes fieles con patrones de consumo consistentes.
+
+**Oportunidad de Crecimiento en Tardes**
+El menor volumen del turno tarde/noche representa potencial para campañas específicas que atraigan más clientes en estos horarios.
+
+La sucursal opera con dos realidades distintas por turno, requiriendo estrategias diferenciadas que maximicen el potencial de cada horario mientras se mantiene la calidad de servicio consistente.
+
+```{r hell_analisis3, echo=FALSE}
+Hell_portipodeproducto<- analizar_y_formatear(
+  df = df_agrupado_por_Hell_ordert, #Acá es indiferente si utilizamos el ordert o orderm porque el orden no altera el resultado. 
+  grupo = categoria_producto,
+  titulo = "Análisis comparativo de los ingresos por cada categoría del menú en la Sucursal Hell's Kitchen",
+  nota = "La información proporcionada comprende la cantidad total de datos de un semestre"
+)
+datatable(
+  Hell_portipodeproducto$datos,
+  rownames = FALSE,
+  filter = 'top',
+  extensions = c('Buttons', 'Scroller'),
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel'),
+    scrollX = TRUE,
+    scrollY = "400px",
+    scroller = TRUE,
+    pageLength = 10
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center;',
+    htmltools::strong('ANÁLISIS DE INGRESOS POR TIPO DE PRODUCTO')
+  )
+)
+```
+
+
+**Indicadores clave del desempeño de la Sucursal Hell's Kitchen por tipo de producto**
+
+**📊 Participación en Ventas**
+- **Productos principales**: Coffee (40% de transacciones) y Tea (30% de transacciones)
+- **Categorías secundarias**: Bakery (15%) y Drinking Chocolate (7%)
+- **Productos nicho**: Representan 8% restante del volumen
+
+**💰 Contribución Financiera**
+- **Mayores generadores**: Coffee (USD 91,223) y Tea (USD 64,701)
+- **Alto valor unitario**: Coffee beans (USD 25.88) y Branded (USD 16.32)
+- **Bajo valor unitario**: Flavours (USD 1.21) y Bakery (USD 3.60)
+
+**🎯 Perspectiva para Directivos**
+
+**Pilares del Negocio Confirmados**
+Coffee y Tea representan el 70% del volumen y son la base financiera de la sucursal, mostrando un comportamiento de consumo sólido y predecible.
+
+**Joyas Ocultas del Portafolio**
+Coffee beans emerge como la categoría de mayor valor con un promedio de USD 25.88, aunque con volumen limitado, indicando potencial para estrategias de retención y captación de nuevos clientes.
+
+**Oportunidades de Optimización**
+Bakery muestra alto volumen pero bajo valor promedio, sugiriendo espacio para mejorar estrategias de valor agregado y upselling.
+
+**Estrategias Recomendadas**
+- **Enfocar** en mantener el desempeño sólido de Coffee y Tea
+- **Potenciar** Coffee beans mediante posicionamiento premium
+- **Optimizar** Bakery con estrategias de valor promedio
+- **Mantener** el atractivo de acceso con categorías de bajo precio como Flavours
+
+El portafolio muestra un balance saludable entre productos base de alto volumen y categorías premium de mayor margen, ofreciendo múltiples palancas para el crecimiento sostenido.
+
 
 LOWER MANHATTAN - Oportunidad Premium
 
