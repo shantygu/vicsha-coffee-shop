@@ -292,25 +292,40 @@ ggplot(vicsha_basededatos, aes(x = ubicacion_tienda, y = total_ingresos)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
----
+### SUCURSAL ASTORIA
+
+La distribución muestra ventas concentradas en montos medios-bajos, con una mediana alrededor de $50-60. La forma del violín es estrecha y alta, indicando que la mayoría de las transacciones caen dentro de un rango similar. Hay poca variabilidad en los montos, lo que sugiere que los clientes tienen hábitos de compra regulares y predecibles. Los valores atípicos son mínimos, confirmando la consistencia en el comportamiento del cliente. Esta sucursal se caracteriza por transacciones estables pero con poco potencial para ventas de alto valor.
+
+La distribución de ingresos nos conduce al análisis más significativo: el desempeño por sucursal. Entender el comportamiento global de VICHSA es valioso, pero el verdadero insight surge al examinar las variables en cada ubicación específica. Esta perspectiva permite a los directivos tomar decisiones más precisas y evaluar el rendimiento real de cada sucursal dentro de la marca.
+
+```{r astoria_analisis1, echo=FALSE}
+niveles_meses_abreviados <- c("MES ENE", "MES FEB", "MES MAR", "MES ABR", "MES MAY", "MES JUN")
+
+vicsha_ordenado <- vicsha_basededatos %>%
+  mutate(mes_abreviado = factor(mes_abreviado, levels = niveles_meses_abreviados, ordered = TRUE))
+
+niveles_horarios_abreviados <- c("HORARIO DE LA MAÑANA", "HORARIO DE LA TARDE/NOCHE", "HORARIO DE LA NOCHE")
+vicsha_ordenadoporturno <- vicsha_basededatos %>%
+  mutate(mes_abreviado = factor(turno, levels = niveles_horarios_abreviados, ordered = TRUE))
+
+#Luego de ordenar nuestros factores de interés para obtener una mejor presentación lógica en términos de tiempo, utilizamos nuestra función. 
 
 
-#### RESULTADOS DETALLADOS POR SUCURSAL
+df_agrupado_por_Astoria_orderm <- vicsha_ordenado%>% #orderm= ordenado por mes 
+  filter( ubicacion_tienda == 'Astoria')
 
+df_agrupado_por_Astoria_ordert <- vicsha_ordenadoporturno%>%   #orderm= ordenado por turno
+  filter( ubicacion_tienda == 'Astoria')
 
-```{r tabla_completa_interactiva, echo=FALSE}
-
-
-vicsha_portienda <- analizar_y_formatear(
-  df = vicsha_basededatos,
-  grupo = ubicacion_tienda,
-  titulo = "Análisis COMPLETO de ingresos por tienda",
-  nota = "Tabla interactiva - Use los controles para filtrar y ordenar"
+Astoria_pormes <- analizar_y_formatear(
+  df = df_agrupado_por_Astoria_orderm,
+  grupo = mes_abreviado,
+  titulo = "Análisis comparativo de los ingresos por cada mes en la Sucursal Astoria",
+  nota = "La información proporcionada comprende la cantidad total de datos de un semestre"
 )
 
-# Convertir a datatable INTERACTIVA
 datatable(
-  vicsha_portienda$datos,
+  Astoria_pormes$datos,
   rownames = FALSE,
   filter = 'top',
   extensions = c('Buttons', 'Scroller'),
@@ -324,14 +339,189 @@ datatable(
   ),
   caption = htmltools::tags$caption(
     style = 'caption-side: top; text-align: center;',
-    htmltools::strong('ANÁLISIS COMPLETO DE INGRESOS POR TIENDA')
+    htmltools::strong('ANÁLISIS DE INGRESOS POR MES')
   )
 )
+
+```
+**Indicadores clave del desempeño de la Sucursal Astoria por mes**
+
+**📊 Volumen de Transacciones por Mes**
+- **Mes con mayor volumen**: Junio (11,985 transacciones)
+- **Mes con menor volumen**: Febrero (5,490 transacciones)
+- **Tendencia**: Crecimiento progresivo de Febrero a Junio
+
+**💰 Ingresos Totales**
+- **Mes con mayores ingresos**: Junio ($55,083.11)
+- **Mes con menores ingresos**: Febrero ($25,105.34)
+- **Correlación**: Volumen de transacciones se relaciona directamente con ingresos totales
+
+**📈 Análisis del Centro de la Distribución (Media vs. Mediana)**
+- **Mediana constante**: 3.75 en todos los meses
+- **Media fluctuante**: Entre 4.57 y 4.62
+- **Relación media-mediana**: La media consistentemente mayor que la mediana en aproximadamente 0.82-0.87 puntos
+- **Interpretación**: La distribución está sesgada hacia la derecha, indicando presencia de valores altos que elevan el promedio por encima del valor típico (mediana)
+
+**📋 Dispersión de Ingresos**
+- **Mes con mayor dispersión relativa**: Enero (CV: 66.44%)
+- **Mes con menor dispersión relativa**: Febrero (CV: 60.12%)
+- **Rango constante**: 44.2 en todos los meses (mínimo: 0.8, máximo: 45)
+
+**🎯 Perspectiva para Directivos**
+
+Esta información proporciona a los directivos:
+
+**Métrica de Valor Típico**
+- La mediana constante de 3.75 representa el ingreso típico por transacción
+
+**Identificación de Outliers**
+- La diferencia consistente entre media y mediana sugiere transacciones de mayor valor que distorsionan el promedio
+
+**Estabilidad Operativa**
+- Los cuartiles constantes (Q1=3, Q3=6) indican comportamiento predecible en la distribución central. La estabilidad observada en los cuartiles (Q1=3 y Q3=6) a lo largo de todos los meses indica que el núcleo del negocio mantiene una estructura operativa predecible y consistente. Esto significa que, independientemente de las fluctuaciones en el volumen total de transacciones, la distribución fundamental de los ingresos por venta se preserva intacta.
+
+```{r astoria_analisis2, echo=FALSE}
+
+Astoria_porturno <- analizar_y_formatear(
+  df = df_agrupado_por_Astoria_ordert,
+  grupo = turno,
+  titulo = "Análisis comparativo de los ingresos por turno en la Sucursal Astoria",
+  nota = "La información proporcionada comprende la cantidad total de datos de un semestre"
+)
+
+datatable(
+  Astoria_porturno$datos,
+  rownames = FALSE,
+  filter = 'top',
+  extensions = c('Buttons', 'Scroller'),
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel'),
+    scrollX = TRUE,
+    scrollY = "400px",
+    scroller = TRUE,
+    pageLength = 10
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center;',
+    htmltools::strong('ANÁLISIS DE INGRESOS POR TURNO')
+  )
+)
+
 ```
 
-ASTORIA - Clientes Consistentes
+**Indicadores clave del desempeño de la Sucursal Astoria por turno**
 
-La distribución muestra ventas concentradas en montos medios-bajos, con una mediana alrededor de $50-60. La forma del violín es estrecha y alta, indicando que la mayoría de las transacciones caen dentro de un rango similar. Hay poca variabilidad en los montos, lo que sugiere que los clientes tienen hábitos de compra regulares y predecibles. Los valores atípicos son mínimos, confirmando la consistencia en el comportamiento del cliente. Esta sucursal se caracteriza por transacciones estables pero con poco potencial para ventas de alto valor.
+**📊 Volumen de Transacciones por Turno**
+- **Turno con mayor volumen**: Horario de la Mañana (29.828 transacciones)
+- **Turno con menor volumen**: Horario de la Tarde/Noche (20.771 transacciones)
+- **Diferencia**: 9,057 transacciones a favor del turno matutino
+
+**💰 Ingresos Totales por Turno**
+- **Turno con mayores ingresos**: Horario de la Mañana ($136.571,59)
+- **Turno con menores ingresos**: Horario de la Tarde/Noche ($95.672,32)
+
+**📈 Análisis del Centro de la Distribución (Media vs. Mediana)**
+- **Mediana constante**: 3.75$ en ambos turnos
+- **Media similar**: Mañana (4.58USD) vs Tarde/Noche (4.61USD)
+
+**📋 Dispersión de Ingresos por Turno**
+- **Turno con mayor dispersión relativa**: Horario de la Mañana (CV: 63.81%)
+- **Turno con menor dispersión relativa**: Horario de la Tarde/Noche (CV: 61.08%)
+- **Rango constante**: 44.2USD en ambos turnos (mínimo: 0.8, máximo: 45)
+
+**🎯 Perspectiva para Directivos**
+
+Esta información proporciona a los directivos:
+
+**Eficiencia Operativa por Turno**
+- El turno de la mañana presenta una densidad operacional significativamente mayor, con 9,057 transacciones adicionales respecto al turno de la tarde/noche, concentrando aproximadamente 3 de cada 5 transacciones totales de la sucursal y estableciendo una clara preponderancia del horario matutino en el volumen de negocio.
+
+**Consistencia en el Valor Típico**
+- La mediana idéntica (3.75) indica que el ingreso por transacción típico es igual en ambos turnos
+
+**Estabilidad en la Distribución Central**
+- Los cuartiles constantes (Q1=3, Q3=6) confirman comportamiento predecible en ambos horarios
+
+**Diferencias en Variabilidad**
+- El turno matutino presenta mayor dispersión relativa, posiblemente debido a mayor diversidad de clientes o patrones de compra
+
+**Optimización de Recursos**
+- La consistencia en métricas clave permite asignación eficiente de personal e inventario según la demanda por turnos
+
+```{r astoria_analisis3, echo=FALSE}
+
+Astoria_portipodeproducto<- analizar_y_formatear(
+  df = df_agrupado_por_Astoria_ordert, #Acá es indiferente si utilizamos el ordert o orderm porque el orden no altera el resultado. 
+  grupo = categoria_producto,
+  titulo = "Análisis comparativo de los ingresos por cada categoría del menú en la Sucursal Astoria",
+  nota = "La información proporcionada comprende la cantidad total de datos de un semestre"
+)
+
+datatable(
+  Astoria_portipodeproducto$datos,
+  rownames = FALSE,
+  filter = 'top',
+  extensions = c('Buttons', 'Scroller'),
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel'),
+    scrollX = TRUE,
+    scrollY = "400px",
+    scroller = TRUE,
+    pageLength = 10
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center;',
+    htmltools::strong('ANÁLISIS DE INGRESOS POR TIPO DE PRODUCTO')
+  )
+)
+
+```
+**Indicadores clave del desempeño de la Sucursal Astoria por producto**
+
+**📊 Participación en Volumen de Transacciones**
+- **Categoría líder**: Coffee (20,025 transacciones - 40% del total)
+- **Segunda categoría**: Tea (16,260 transacciones - 32% del total)
+- **Tercera categoría**: Bakery (7,289 transacciones - 14% del total)
+- **Categorías menores**: Representan colectivamente el 14% restante
+
+**💰 Contribución a Ingresos Totales**
+- **Mayor generador**: Coffee (89,744.30USD - 38% de ingresos totales)
+- **Segundo generador**: Tea ($67,839.90 - 29% de ingresos totales)
+- **Tercer generador**: Drinking Chocolate ($26,335.25 - 11% de ingresos totales)
+- **Bakery**: A pesar de alto volumen, contribuye solo 11% a ingresos
+
+**📈 Análisis de Valor por Transacción**
+- **Premium**: Coffee beans (20.36USD promedio) y Branded (19.56USD promedio)
+- **Medio**: Packaged Chocolate (9.91USD) y Loose Tea (9.28USD)
+- **Básico**: Flavours (1.18USD) y Bakery (3.65USD)
+
+**Relación Media vs. Mediana por Categoría**
+- **Coffee beans**: Media (20.36USD) > Mediana (19.75USD) - ligero sesgo positivo
+- **Branded**: Media (19.56USD) > Mediana (14USD) - fuerte sesgo positivo
+- **Bakery**: Media (3.65USD) ≈ Mediana (3.5USD) - distribución casi simétrica
+- **Flavours**: Media (1.18USD) > Mediana ($0.8USD) - sesgo positivo marcado
+
+**📋 Estabilidad y Consistencia por Categoría**
+- **Alta consistencia**: Loose Tea (CV: 6.6%) comportamiento muy predecible
+- **Media consistencia**: Bakery (CV: 20.09%) y Tea (CV: 36.79%)
+- **Alta variabilidad**: Branded (CV: 36.41%) y Coffee beans (CV: 41.42%)
+
+**🎯 Perspectiva para Marketing y Directivos**
+
+**Estrategia de Portafolio**
+- Coffee y Tea representan el 72% del volumen y 67% de los ingresos - productos core del negocio
+- Categorías premium (Coffee beans, Branded) muestran alto valor promedio pero bajo volumen
+
+**Oportunidades de Mix Comercial**
+- Bakery tiene alta rotación pero bajo valor promedio. Existe una oportunidad para estrategias de upselling, tales como: ofrecer combos que incluyan productos de bakery con bebidas premium (coffee beans o branded) para incrementar el ticket promedio, debido a que la categoría Bakery presenta una combinación única de alto volumen transaccional (7,289 transacciones) pero bajo valor promedio por ticket ($3.65), situándose muy por debajo del promedio general de la sucursal.
+
+- Drinking Chocolate combina volumen moderado con buen valor promedio, lo que la convierte en el candidato ideal para programas de fidelización. Por ejemplo: Implementar un sistema de "10 bebidas de chocolate, 1 gratis" que incentive la repetición de compra.
+
+**Segmentación de Clientes**
+- Flavours representa el segmento de menor valor. Lo ideal sería crear una posible estrategia para atracción de nuevos clientes o descartar la categoría del menú. 
+- Productos premium muestran patrones de compra más variables.
 
 HELL'S KITCHEN - Equilibrio Diversificado
 
