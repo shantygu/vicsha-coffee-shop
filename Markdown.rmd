@@ -730,10 +730,210 @@ Bakery muestra alto volumen pero bajo valor promedio, sugiriendo espacio para me
 El portafolio muestra un balance saludable entre productos base de alto volumen y categorías premium de mayor margen, ofreciendo múltiples palancas para el crecimiento sostenido.
 
 
-LOWER MANHATTAN - Oportunidad Premium
+### LOWER MANHATTAN
 
 La distribución es la más amplia de las tres, con mediana alrededor de $80-90 pero con una densidad que se extiende hacia valores significativamente más altos. La forma del violín sugiere posiblemente dos grupos de clientes: uno de transacciones rápidas y otro de compras más sustanciales. La alta variabilidad refleja la naturaleza diversa de esta zona financiera, donde coexisten trabajadores que buscan conveniencia con ejecutivos que realizan compras corporativas. Los valores atípicos hacia el extremo superior representan oportunidades significativas para ventas de mayor valor.
 
+```{r lower_analisis1, echo=FALSE}
+df_agrupado_por_Lower_orderm <- vicsha_ordenado%>% #orderm= ordenado por mes 
+  filter( ubicacion_tienda == "Lower Manhattan")
+
+df_agrupado_por_Lower_ordert <- vicsha_ordenadoporturno%>%   #orderm= ordenado por turno
+  filter( ubicacion_tienda == "Lower Manhattan")
+
+Lower_pormes <- analizar_y_formatear(
+  df = df_agrupado_por_Lower_orderm,
+  grupo = mes_abreviado,
+  titulo = "Análisis comparativo de los ingresos por cada mes en la Sucursal Lower Manhattan",
+  nota = "La información proporcionada comprende la cantidad total de datos de un semestre"
+)
+
+datatable(
+  Lower_pormes$datos,
+  rownames = FALSE,
+  filter = 'top',
+  extensions = c('Buttons', 'Scroller'),
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel'),
+    scrollX = TRUE,
+    scrollY = "400px",
+    scroller = TRUE,
+    pageLength = 10
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center;',
+    htmltools::strong('ANÁLISIS DE INGRESOS POR MES')
+  )
+)
+```
+**Indicadores clave del desempeño de la Sucursal Lower Manhattan por mes**
+
+**📊 Evolución del Volumen Mensual**
+- **Mes de mayor actividad**: Junio (11,296 transacciones)
+- **Mes de menor actividad**: Febrero (5,263 transacciones)
+- **Tendencia**: Crecimiento constante durante el semestre
+
+**💰 Desempeño de Ingresos**
+- **Mes de mayores ingresos**: Junio (USD 54,446)
+- **Mes de menores ingresos**: Febrero (USD 25,320)
+- **Crecimiento**: Los ingresos se duplicaron entre febrero y junio
+
+**📈 Comportamiento de Valores por Transacción**
+- **Estabilidad notable**: Mediana constante en USD 3.75 todos los meses
+- **Consistencia en promedios**: Valores entre USD 4.80-4.85 mensuales
+- **Patrón consistente**: Diferencia estable de aproximadamente USD 1.05 entre promedio y mediana
+
+**📋 Perfil de Variabilidad**
+- **Dispersión controlada**: Coeficiente de variación entre 66.77% y 69.80%
+- **Rango variable**: Ingresos máximos entre USD 45-72 según el mes
+
+**🎯 Perspectiva para Directivos**
+
+**Crecimiento Sostenido y Saludable**
+La sucursal muestra un patrón de crecimiento mensual consistente, duplicando su volumen de transacciones durante el semestre analizado.
+
+**Operación Predecible y Estable**
+La consistencia en la mediana y los cuartiles indica una base de clientes con comportamientos de consumo muy estables, facilitando la planificación operativa.
+
+**Estructura de Precios Sólida**
+La diferencia constante entre el promedio y la mediana confirma la presencia de transacciones de mayor valor que complementan la base de consumo regular.
+
+**Gestión Eficiente del Crecimiento**
+A pesar del significativo aumento en volumen, la sucursal mantuvo la estabilidad en sus métricas clave de valor por transacción.
+
+**Oportunidad de Consolidación**
+El patrón de crecimiento mensual sugiere potencial para estrategias que capitalicen esta tendencia positiva en el segundo semestre.
+
+Lower Manhattan demuestra un desempeño ejemplar con crecimiento orgánico sostenido y operación consistentemente estable, posicionándose como una sucursal con fundamentos operativos sólidos y potencial de crecimiento continuo.
+
+```{r lower_analisis2, echo=FALSE}
+Lower_porturno <- analizar_y_formatear(
+  df = df_agrupado_por_Lower_ordert,
+  grupo = turno,
+  titulo = "Análisis comparativo de los ingresos por turno en la Sucursal Lower Manhattan",
+  nota = "La información proporcionada comprende la cantidad total de datos de un semestre"
+)
+
+datatable(
+  Lower_porturno$datos,
+  rownames = FALSE,
+  filter = 'top',
+  extensions = c('Buttons', 'Scroller'),
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel'),
+    scrollX = TRUE,
+    scrollY = "400px",
+    scroller = TRUE,
+    pageLength = 10
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center;',
+    htmltools::strong('ANÁLISIS DE INGRESOS POR TURNO')
+  )
+)
+```
+
+**Indicadores clave del desempeño de la Sucursal Lower Manhattan por turno**
+
+
+**📊 Distribución del Volumen por Turno**
+- **Turno principal**: Mañana (34,916 transacciones - 73% del total)
+- **Turno secundario**: Tarde/Noche (12,866 transacciones - 27% del total)
+
+**💰 Contribución a Ingresos**
+- **Turno líder**: Mañana (USD 169,421)
+- **Turno complementario**: Tarde/Noche (USD 60,636)
+
+**📈 Comportamiento de Valores por Transacción**
+- **Base consistente**: Mediana idéntica de USD 3.75 en ambos turnos
+- **Valor promedio superior**: Mañana USD 4.85 vs Tarde/Noche USD 4.71
+- **Patrón estable**: Diferencia constante entre promedio y mediana en ambos horarios
+
+**🎯 Perspectiva para Directivos**
+
+**Dominio Absoluto del Turno Matutino**
+La sucursal opera claramente como un negocio de mañana, concentrando casi las tres cuartas partes de su actividad comercial en este horario.
+
+**Dos Realidades Operativas Distintas**
+- **Mañana**: Mayor volumen y valor promedio, con transacciones más variables
+- **Tarde/Noche**: Operación más compacta y predecible, con menor dispersión
+
+**Base de Clientes Sólida y Consistente**
+El valor típico de USD 3.75 se mantiene inalterable en ambos turnos, reflejando una base de clientes leales con patrones de consumo estables.
+
+**Oportunidad Clara en Horario Vespertino**
+El menor volumen del turno tarde/noche representa una oportunidad significativa para estrategias específicas de atracción y retención.
+
+**Optimización de Recursos**
+La marcada diferencia entre turnos sugiere oportunidad para ajustar dotaciones de personal y recursos según la demanda horaria.
+
+Lower Manhattan presenta un perfil operativo muy definido con clara predominancia matutina, ofreciendo oportunidades concretas para optimizar recursos y desarrollar estrategias específicas para potenciar el turno de menor actividad.
+
+```{r lower_analisis3, echo=FALSE}
+Lower_portipodeproducto<- analizar_y_formatear(
+  df = df_agrupado_por_Lower_ordert, #Acá es indiferente si utilizamos el ordert o orderm porque el orden no altera el resultado. 
+  grupo = categoria_producto,
+  titulo = "Análisis comparativo de los ingresos por cada categoría del menú en la Sucursal Lower Manhattan",
+  nota = "La información proporcionada comprende la cantidad total de datos de un semestre"
+)
+
+datatable(
+  Lower_portipodeproducto$datos,
+  rownames = FALSE,
+  filter = 'top',
+  extensions = c('Buttons', 'Scroller'),
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel'),
+    scrollX = TRUE,
+    scrollY = "400px",
+    scroller = TRUE,
+    pageLength = 10
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center;',
+    htmltools::strong('ANÁLISIS DE INGRESOS POR TIPO DE PRODUCTO')
+  )
+)
+```
+**Indicadores clave del desempeño de la Sucursal Lower Manhattan por turno**
+
+**📊 Participación en Ventas**
+- **Líderes claros**: Coffee (18,204 transacciones - 38%) y Tea (13,912 transacciones - 29%)
+- **Categorías secundarias**: Bakery (7,890 transacciones - 17%) y Drinking Chocolate (3,405 transacciones - 7%)
+
+**💰 Contribución Financiera Real**
+- **Mayores generadores**: Coffee (USD 88,985 - 37% de ingresos) y Tea (USD 63,865 - 27% de ingresos)
+- **Contribuidores sólidos**: Bakery (USD 28,329 - 12%) y Drinking Chocolate (USD 22,495 - 9%)
+- **Productos premium**: Coffee beans (USD 11,231 - 5%) y Branded (USD 6,208 - 3%)
+- **Categorías complementarias**: Representan USD 17,445 (7% de ingresos totales)
+
+**📈 Comportamiento de Valores por Transacción**
+- **Productos premium**: Coffee beans (USD 21.15) y Branded (USD 17.79)
+- **Productos medios**: Drinking Chocolate (USD 6.61) y Packaged Chocolate (USD 9.00)
+- **Productos base**: Coffee (USD 4.89) y Tea (USD 4.59)
+- **Productos de acceso**: Bakery (USD 3.59) y Flavours (USD 1.29)
+
+**🎯 Perspectiva para Directivos**
+
+**Pilares Comerciales Confirmados**
+Coffee y Tea consolidan su liderazgo con el 64% de los ingresos totales, demostrando ser los motores principales del negocio.
+
+**Estrategia de Portafolio Efectiva**
+La combinación de productos masivos con categorías premium crea un balance saludable, donde los productos base aseguran el flujo operativo y los premium aportan margen.
+
+**Oportunidad en Categorías Premium**
+Coffee beans y Branded representan solo el 2% del volumen pero contribuyen con 8% de los ingresos, indicando alto potencial para estrategias de expansión controlada.
+
+**Optimización de Mix Comercial**
+Bakery muestra una brecha entre participación en volumen (17%) y contribución financiera (12%), señalando oportunidad para estrategias de valorización.
+
+**Estabilidad Operativa**
+Categorías como Loose Tea y Bakery mantienen comportamientos predecibles, facilitando la gestión de inventario y producción.
+
+Lower Manhattan opera con un portafolio bien estructurado donde los productos base generan la masa crítica de ingresos, mientras las categorías premium ofrecen oportunidades de crecimiento mediante estrategias específicas de penetración y valorización.
 
 ### 🟫 Análisis por categoria de producto 
 
@@ -1044,15 +1244,24 @@ El ticket promedio se mantiene notablemente consistente across todos los turnos 
 
 ##  🧠 Conclusión Final
 
-El análisis exploratorio de ventas de la franquicia Vícsha ha facilitado la creación de un análisis preciso del comportamiento de consumo en sus diversas sucursales. Mediante una segmentación que abarca ubicación, categoría de producto, temporalidad y franja horaria, se han detectado patrones consistentes que señalan tanto fortalezas ya establecidas como oportunidades específicas de crecimiento. 
+El análisis estadístico de ventas de la franquicia Vícsha y cada una de sus sucursales ha facilitado la creación de una perspectiva precisa del comportamiento de consumo. Mediante una segmentación que abarca ubicación, categoría de producto, temporalidad y franja horaria, se han detectado patrones consistentes que señalan tanto fortalezas ya establecidas como oportunidades específicas de crecimiento. 
 
 Astoria se posiciona como la sucursal más estable, con clientes regulares y transacciones homogéneas. Su fortaleza radica en la consistencia, aunque presenta menor variabilidad en el ticket promedio, lo que limita el potencial de ventas de alto valor. Hell’s Kitchen, por su parte, muestra un equilibrio saludable entre volumen y diversidad de transacciones, lo que la convierte en un punto estratégico para probar nuevas categorías y tácticas de fidelización. Lower Manhattan destaca por su alta dispersión y presencia de compras premium, lo que sugiere un perfil corporativo y sofisticado que puede capitalizarse con productos de marca, experiencias gourmet y estrategias de exclusividad.
 
-El café se reafirma como el eje central y consistente del negocio en todas las ubicaciones, generando ingresos estables. No obstante, la diferenciación clave se encuentra en los complementos. La panadería tiene un desempeño sólido y estable, mientras que los productos especializados muestran una fuerte segmentación geográfica: Hell's Kitchen lidera en venta de granos de café (cliente conocedor), y Lower Manhattan destaca en productos de marca (mayor poder adquisitivo). Astoria, por su parte, ha logrado posicionar el chocolate para beber como una especialidad local, lo que sugiere una conexión cultural a explotar.
+La implementación de estrategias personalizadas por sucursal permitirá que nuestra cartera de clientes se sienta genuinamente escuchada y atendida:
+
+Para Lower Manhattan, recomendamos programas de fidelización premium que reconozcan la lealtad de su base clientelar, complementados con capacitación especializada del personal en técnicas de ventas consultivas que enfaticen la experiencia sensorial del café.
+
+En Hell's Kitchen, la estrategia debe centrarse en gestión de relaciones con clientes de alto valor, mediante eventos exclusivos después del horario comercial y programas de membresía que ofrezcan acceso prioritario a lanzamientos limitados. El personal requiere formación avanzada en perfiles de café y maridajes.
+
+Astoria se beneficiaría de campañas de captación y retención que capitalicen su estabilidad, con énfasis en experiencias comunitarias y programas de recomendación que fortalezcan el sentido de pertenencia.
+
+
+El café se reafirma como el eje central y consistente del negocio en todas las ubicaciones, generando ingresos estables. No obstante, la diferenciación clave se encuentra en los complementos. La panadería tiene un desempeño sólido y estable, mientras que los productos especializados muestran una fuerte segmentación geográfica: Hell's Kitchen lidera en venta de granos de café (cliente conocedor), y Lower Manhattan destaca en productos de marca (mayor poder adquisitivo). Astoria, por su parte, ha logrado posicionar el chocolate para beber como una especialidad local, lo que sugiere una conexión cultural a explotar. Nuestros pilares Coffee y Tea (60-70% de ingresos) requieren protección y fortalecimiento mediante programas de capacitación continua que aseguren la consistencia en la calidad del servicio. Paralelamente, las categorías premium como Coffee beans (USD 21.15 por transacción) merecen estrategias de marketing específicas que eduquen al consumidor sobre su valor diferencial.
 
 El análisis temporal revela un patrón estacional claro: las ventas crecen de enero a un pico máximo en abril, seguido de una corrección y estabilización en junio. Este comportamiento sugiere la influencia de factores externos (turismo, promociones). El desempeño de abril debe ser estudiado particularmente para identificar sus impulsores y replicarlos. Además, esta estacionalidad debe ser una consideración central en la planificación de inventario, personal y campañas.
 
-Finalmente, el análisis por turno confirma que la mañana es el corazón operativo de Vícsha, concentrando más del 67% de los ingresos, el mayor volumen de transacciones y el ticket promedio más alto. Esta franja es el momento de máxima eficiencia. Aunque la tarde es menos rentable, su perfil de gasto similar abre la puerta a estrategias de activación como promociones específicas y campañas de fidelización.
+Finalmente, el análisis por turno confirma que la mañana es el corazón operativo de Vícsha, concentrando más del 67% de los ingresos, el mayor volumen de transacciones y el ticket promedio más alto. Esta franja es el momento de máxima eficiencia. Aunque la tarde es menos rentable, su perfil de gasto similar abre la puerta a estrategias de activación como promociones específicas y campañas de fidelización .La marcada predominancia del turno matutino demanda una reevaluación estratégica de la asignación de recursos. Implementando rotación inteligente del personal más experimentado hacia los horarios de mayor volumen, y desarrollando incentivos específicos para el turno vespertino, podemos iniciar un ciclo virtuoso de mejora continua.
 
 
 ### 📌 Recomendaciones Estratégicas
